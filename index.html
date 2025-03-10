@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProTrader Insights</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>🚀 ProTrader Insights</h1>
+    </header>
+
+    <main>
+        <section id="input">
+            <h2>Enter Stock Details</h2>
+            <div class="form-group">
+                <label for="ticker">Stock Ticker:</label>
+                <input type="text" id="ticker" value="AAPL">
+            </div>
+            <div class="form-group">
+                <label for="days">Number of Days:</label>
+                <input type="number" id="days" min="30" value="365">
+            </div>
+            <button id="analyze-button">Analyze and Predict</button>
+        </section>
+
+        <section id="results" style="display: none;">
+            <h2>Stock Analysis and Predictions</h2>
+            <div id="current-price"></div>
+            <div id="model-predictions"></div>
+            <div id="best-model"></div>
+            <div id="historical-chart"></div>
+            <div id="volume-chart"></div>
+            <div id="rsi-chart"></div>
+            <div id="macd-chart"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Created by ProTrader Insights Team</p>
+        <p>Disclaimer: This tool is for educational purposes only. Always conduct thorough research before making investment decisions.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
