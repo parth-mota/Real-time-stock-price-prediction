@@ -3,42 +3,735 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProTrader Insights</title>
-    <link rel="stylesheet" href="style.css">
+    <title>ProfitPulse | Advanced Stock Price Prediction</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.24.2/plotly.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --background-color: #f8fafc;
+            --card-background: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --success-color: #22c55e;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .navbar {
+            background-color: var(--card-background);
+            padding: 1rem 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .main-content {
+            max-width: 1400px;
+            margin: 80px auto 2rem;
+            padding: 0 2rem;
+        }
+
+        .search-section {
+            background-color: var(--card-background);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        input, button {
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+
+        input {
+            flex: 1;
+            min-width: 0;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-weight: 500;
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background-color: var(--card-background);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            
+        }
+        .analysis-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-section {
+            background-color: var(--card-background);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .news-section {
+            background-color: var(--card-background);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .metric-item {
+            padding: 1rem;
+            background-color: rgba(37, 99, 235, 0.1);
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .metric-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .price-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+
+        .change-value {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .positive {
+            color: var(--success-color);
+        }
+
+        .negative {
+            color: var(--danger-color);
+        }
+
+        .chart-container {
+            background-color: var(--card-background);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            margin-bottom: 3rem;
+            height: 400px;
+            width: 100%;
+            max-width: 1200px; 
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .chart-wrapper {
+            width: 100%;
+            height: 350px; 
+            margin: 0 auto;
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .news-item {
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            transition: transform 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .news-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .news-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .news-meta {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .trend-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            margin: 0.25rem;
+            background-color: rgba(37, 99, 235, 0.1);
+            color: var(--primary-color);
+        }
+
+        .volume-chart {
+            height: 200px;
+            margin-top: 1rem;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        .error {
+            display: none;
+            color: var(--danger-color);
+            padding: 1rem;
+            text-align: center;
+            background-color: rgba(239, 68, 68, 0.1);
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .ensemble-metrics {
+            background-color: var(--card-background);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .ensemble-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .ensemble-metric {
+            background-color: rgba(37, 99, 235, 0.1);
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+
+        .ensemble-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .ensemble-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        .prediction-legend {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: rgba(37, 99, 235, 0.05);
+            border-radius: 0.5rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 3px;
+            border-radius: 1px;
+        }
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-box {
+            background-color: var(--card-background);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .chart-wrapper {
+            width: 100%;
+            height: 350px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 0 1rem;
+            }
+            
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-section {
+                padding: 1rem;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+
+            .chart-container {
+                height: 300px;
+                padding: 1rem;
+            }
+            .chart-wrapper{
+                height: 250px;
+            }
+            .chart-wrapper {
+                height: 300px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>🚀 ProTrader Insights</h1>
-    </header>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="/" class="logo">ProfitPulse</a>
+        </div>
+    </nav>
 
-    <main>
-        <section id="input">
-            <h2>Enter Stock Details</h2>
-            <div class="form-group">
-                <label for="ticker">Stock Ticker:</label>
-                <input type="text" id="ticker" value="AAPL">
-            </div>
-            <div class="form-group">
-                <label for="days">Number of Days:</label>
-                <input type="number" id="days" min="30" value="365">
-            </div>
-            <button id="analyze-button">Analyze and Predict</button>
+    <main class="main-content">
+        <section class="search-section">
+            <form id="stockForm" onsubmit="predictStock(event)" class="input-group">
+                <input type="text" id="stockSymbol" name="symbol" placeholder="Enter stock symbol (e.g., AAPL)" required>
+                <input type="number" id="predictionDays" name="days" min="1" max="30" placeholder="Days to predict">
+                <button type="submit">Predict</button>
+            </form>
+            <div id="error" class="error"></div>
         </section>
 
-        <section id="results" style="display: none;">
-            <h2>Stock Analysis and Predictions</h2>
-            <div id="current-price"></div>
-            <div id="model-predictions"></div>
-            <div id="best-model"></div>
-            <div id="historical-chart"></div>
-            <div id="volume-chart"></div>
-            <div id="rsi-chart"></div>
-            <div id="macd-chart"></div>
-        </section>
+        <div id="loading" class="loading">
+            <i class="fas fa-spinner fa-spin"></i> Analyzing stock data...
+        </div>
+
+        <div id="results" style="display: none;">
+            <div class="grid-container">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Company Overview</h2>
+                    </div>
+                    <div id="companyInfo"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Current Price</h2>
+                    </div>
+                    <div id="priceInfo"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Technical Analysis</h2>
+                    </div>
+                    <div id="technicalAnalysis"></div>
+                </div>
+            </div>
+
+            
+            
+            <div class="ensemble-metrics">
+                <div class="card-header">
+                    <h2 class="card-title">Ensemble Model Performance</h2>
+                </div>
+                <div class="ensemble-grid">
+                    <div class="ensemble-metric">
+                        <div class="ensemble-value" id="ensembleRMSE">-</div>
+                        <div class="ensemble-label">Ensemble RMSE</div>
+                    </div>
+                    <div class="ensemble-metric">
+                        <div class="ensemble-value" id="ensembleR2">-</div>
+                        <div class="ensemble-label">R² Score</div>
+                    </div>
+                    <div class="ensemble-metric">
+                        <div class="ensemble-value" id="ensemblePrecision">-</div>
+                        <div class="ensemble-label">Prediction Precision</div>
+                    </div>
+                    <div class="ensemble-metric">
+                        <div class="ensemble-value" id="ensembleConfidence">-</div>
+                        <div class="ensemble-label">Model Confidence</div>
+                    </div>
+                </div>
+            </div>
+            <div class="charts-container">
+                <div class="chart-box">
+                    <div class="card-header">
+                        <h2 class="card-title">Individual Model Predictions</h2>
+                    </div>
+                    <div class="chart-wrapper" id="modelsChart"></div>
+                </div>
+                
+                <div class="chart-box">
+                    <div class="card-header">
+                        <h2 class="card-title">Ensemble Model Prediction</h2>
+                    </div>
+                    <div class="chart-wrapper" id="ensembleChart"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Recent News</h2>
+                </div>
+                <div id="newsContainer" class="news-grid"></div>
+            </div>
+        </div>
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script src="app.js"></script>
+    <script>
+        async function predictStock(event) {
+            event.preventDefault();
+            
+            const form = document.getElementById('stockForm');
+            const formData = new FormData(form);
+            
+            const errorDiv = document.getElementById('error');
+            const loadingDiv = document.getElementById('loading');
+            const resultsDiv = document.getElementById('results');
+
+            errorDiv.style.display = 'none';
+            loadingDiv.style.display = 'block';
+            resultsDiv.style.display = 'none';
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                updateUI(data);
+                resultsDiv.style.display = 'block';
+            } catch (error) {
+                console.error('Error:', error);
+                errorDiv.textContent = error.message || 'An error occurred while fetching the data';
+                errorDiv.style.display = 'block';
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        }
+
+        function updateUI(data) {
+            // Update company info
+            const companyInfo = document.getElementById('companyInfo');
+            companyInfo.innerHTML = `
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <div class="metric-value">${data.company_info.name}</div>
+                        <div class="metric-label">Company Name</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">${data.company_info.sector}</div>
+                        <div class="metric-label">Sector</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">${data.company_info.market_cap}</div>
+                        <div class="metric-label">Market Cap</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">${data.company_info.pe_ratio}</div>
+                        <div class="metric-label">P/E Ratio</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">${data.company_info.dividend_yield}</div>
+                        <div class="metric-label">Dividend Yield</div>
+                    </div>
+                </div>
+            `;
+
+            // Update price info
+            const priceInfo = document.getElementById('priceInfo');
+            const changeClass = (data.daily_change >= 0) ? 'positive' : 'negative';
+            const changeIcon = (data.daily_change >= 0) ? '↑' : '↓';
+            priceInfo.innerHTML = `
+                <div class="price-value">$${data.current_price.toFixed(2)}</div>
+                <div class="change-value ${changeClass}">
+                    ${changeIcon} $${Math.abs(data.daily_change).toFixed(2)} 
+                    (${Math.abs(data.daily_change_pct).toFixed(2)}%)
+                </div>
+                <div class="metrics-grid" style="margin-top: 1rem;">
+                    <div class="metric-item">
+                        <div class="metric-value">${new Intl.NumberFormat().format(data.average_volume)}</div>
+                        <div class="metric-label">Avg Volume</div>
+                    </div>
+                </div>
+            `;
+
+            // Update technical analysis
+            const technicalAnalysis = document.getElementById('technicalAnalysis');
+            if (data.technical_analysis) {
+                technicalAnalysis.innerHTML = `
+                    <div class="metrics-grid">
+                        <div class="metric-item">
+                            <div class="metric-value">$${data.technical_analysis.sma_20}</div>
+                            <div class="metric-label">SMA 20</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">$${data.technical_analysis.sma_50}</div>
+                            <div class="metric-label">SMA 50</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">${data.technical_analysis.rsi}</div>
+                            <div class="metric-label">RSI</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">${data.technical_analysis.macd}</div>
+                            <div class="metric-label">MACD</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1rem">
+                        <div style="margin-top: 1rem;">
+                            ${data.technical_analysis.trend.map(trend => 
+                                `<span class="trend-badge">${trend}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Update charts
+            const lastHistoricalDate = data.historical_dates[data.historical_dates.length - 1];
+    const lastPrice = data.historical_values[data.historical_values.length - 1];
+
+    const priceTrace = {
+        x: [...data.historical_dates, lastHistoricalDate],
+        y: [...data.historical_values, lastPrice],
+        type: 'scatter',
+        name: 'Historical Price',
+        line: { color: '#2563eb' }
+    };
+
+    const lstmTrace = {
+        x: [lastHistoricalDate, ...data.future_dates],
+        y: [lastPrice, ...data.predictions.lstm],
+        type: 'scatter',
+        name: 'LSTM Prediction',
+        line: { dash: 'dot', color: '#22c55e' }
+    };
+
+    const svmTrace = {
+        x: [lastHistoricalDate, ...data.future_dates],
+        y: [lastPrice, ...data.predictions.svm],
+        type: 'scatter',
+        name: 'SVM Prediction',
+        line: { dash: 'dot', color: '#f59e0b' }
+    };
+
+    const rfTrace = {
+        x: [lastHistoricalDate, ...data.future_dates],
+        y: [lastPrice, ...data.predictions.rf],
+        type: 'scatter',
+        name: 'RF Prediction',
+        line: { dash: 'dot', color: '#ef4444' }
+    };
+
+    const ensembleTrace = {
+        x: [lastHistoricalDate, ...data.future_dates],
+        y: [lastPrice, ...data.predictions.ensemble],
+        type: 'scatter',
+        name: 'Ensemble Prediction',
+        line: { dash: 'dot', color: '#8b5cf6', width: 3 }
+    };
+
+    const modelsLayout = {
+        title: 'Individual Model Predictions',
+        xaxis: { title: 'Date' },
+        yaxis: { title: 'Price ($)' },
+        legend: { orientation: 'h', y: -0.2 },
+        margin: { t: 30, l: 60, r: 30, b: 60 },
+        height: 350,
+        autosize: true
+    };
+
+    // Layout for ensemble chart
+    const ensembleLayout = {
+        title: 'Ensemble Model Prediction',
+        xaxis: { title: 'Date' },
+        yaxis: { title: 'Price ($)' },
+        legend: { orientation: 'h', y: -0.2 },
+        margin: { t: 30, l: 60, r: 30, b: 60 },
+        height: 350,
+        autosize: true
+    };
+
+    // Plot individual models chart
+    Plotly.newPlot('modelsChart', [
+        priceTrace,
+        lstmTrace,
+        svmTrace,
+        rfTrace
+    ], modelsLayout);
+
+    // Plot ensemble chart
+    Plotly.newPlot('ensembleChart', [
+        priceTrace,
+        ensembleTrace
+    ], ensembleLayout);
+
+    
+    if (data.ensemble_metrics) {
+                    document.getElementById('ensembleRMSE').textContent = `${data.ensemble_metrics.ensemble_rmse}%`;
+                    document.getElementById('ensembleR2').textContent = `${(data.ensemble_metrics.ensemble_r2 * 100).toFixed(1)}%`;
+                    document.getElementById('ensemblePrecision').textContent = `${(data.ensemble_metrics.ensemble_precision * 100).toFixed(1)}%`;
+                    document.getElementById('ensembleConfidence').textContent = `${(data.ensemble_metrics.ensemble_confidence * 100).toFixed(1)}%`;
+                }
+    // Add performance metrics
+    if (data.predictions.performance) {
+        const technicalAnalysis = document.getElementById('technicalAnalysis');
+        const performanceHtml = `
+            <div class="metrics-grid" style="margin-top: 1rem;">
+                <div class="metric-item">
+                    <div class="metric-value">${data.predictions.performance.ensemble_rmse}%</div>
+                    <div class="metric-label">Ensemble RMSE</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-value">${data.predictions.performance.lstm_rmse}%</div>
+                    <div class="metric-label">LSTM RMSE</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-value">${data.predictions.performance.svm_rmse}%</div>
+                    <div class="metric-label">SVM RMSE</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-value">${data.predictions.performance.rf_rmse}%</div>
+                    <div class="metric-label">RF RMSE</div>
+                </div>
+            </div>
+        `;
+        technicalAnalysis.innerHTML += performanceHtml;
+    }
+            
+            // Update news
+            const newsContainer = document.getElementById('newsContainer');
+            if (data.news && data.news.length > 0) {
+                newsContainer.innerHTML = data.news.map(news => `
+                    <a href="${news.link}" target="_blank" class="news-item">
+                        <div class="news-title">${news.title}</div>
+                        <div class="news-meta">
+                            ${news.publisher} | ${new Date(news.published).toLocaleDateString()}
+                        </div>
+                    </a>
+                `).join('');
+            } else {
+                newsContainer.innerHTML = '<p>No recent news available.</p>';
+            }
+        }
+    </script>
 </body>
 </html>
